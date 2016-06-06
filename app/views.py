@@ -1,13 +1,13 @@
 # views.py 
 
 from django.shortcuts import render, HttpResponse
-import requests, ctypes, urllib, urllib2, zipfile
+import requests, ctypes, urllib, urllib2, zipfile,easygui
 
 
 #Testview = ctypes.windll.user32.MessageBoxA(0, url, 'test', 1)
 
 baseurl = "https://api.github.com/repos/"
-basetype = "/zipball"
+basetype = "/zipball/master"
 outerPath = "C:\Project\Zip\\"
 # Create your views here.
 
@@ -19,11 +19,11 @@ def test(request):
 
 def downloadRepo(repoName):
     url = baseurl + repoName + basetype
-
+    easygui.msgbox(url)
     local_filename = repoName.split('/')[1]
     local_filename = local_filename.split('\n')[0]
     local_filename = local_filename +".zip"
-
+    easygui.msgbox(local_filename)
     path = outerPath + local_filename
     urllib.urlretrieve(url, path)
 
@@ -32,7 +32,8 @@ def downloadRepo(repoName):
 
 def unzip(zipName):
     path = outerPath + zipName
-    with zipfile.ZipFile(path, 'r') as z:
+    easygui.msgbox(path)
+    with zipfile.ZipFile(path,'r') as z:
         z.extractall("C:\Project\Unzip")
 
 
@@ -45,9 +46,15 @@ def repos(request):
         with open(filename, 'r') as file:
             data = file.readlines()
         for repo in data:
-            zipName = downloadRepo(repo)
-            # ctypes.windll.user32.MessageBoxA(0, zipName, 'test', 1)
-            unzip(zipName)
+            try:
+                repo = repo.split('\n')[0]
+                easygui.msgbox(repo)
+                zipName = downloadRepo(repo)
+                # ctypes.windll.user32.MessageBoxA(0, zipName, 'test', 1)
+                easygui.msgbox(zipName)
+                unzip(zipName)
+            except:
+                easygui.exceptionbox()
 
 
     return render(request, 'app/profile.html')
