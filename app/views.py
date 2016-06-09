@@ -17,11 +17,7 @@ parsedData = []
 
 # Create your views here.
 
-def index(request):
-    return HttpResponse('Hello World!')
 
-def test(request):
-    return HttpResponse('My second view!')
 
 def downloadRepo(repoName):
     url = baseurl + repoName + basetype
@@ -126,22 +122,24 @@ def listFiles(fileData):
     amountData = []
     for file in fileData:
         amountDataSingle = {}
-        if file["filename"] not in amountData["filename"].values:
-            amountDataSingle["repo"] = file["repo"]
-            amountDataSingle["filename"] = file["filename"]
-            amountDataSingle["amount"] = 1
-            amountData.append(amountDataSingle)
-        else:
+        for amount in amountData:
 
-
-            result = filter(lambda lambdafile: lambdafile["filename"] == file["filename"] and lambdafile["repo"] == file["repo"], amountData)
-            if result != "":
-                result["amount"] += 1
-            else:
+            if file["filename"] not in amount["filename"]:
                 amountDataSingle["repo"] = file["repo"]
                 amountDataSingle["filename"] = file["filename"]
                 amountDataSingle["amount"] = 1
                 amountData.append(amountDataSingle)
+            else:
+
+
+                result = filter(lambda lambdafile: lambdafile["filename"] == file["filename"] and lambdafile["repo"] == file["repo"], amountData)
+                if result != "":
+                    result["amount"] += 1
+                else:
+                    amountDataSingle["repo"] = file["repo"]
+                    amountDataSingle["filename"] = file["filename"]
+                    amountDataSingle["amount"] = 1
+                    amountData.append(amountDataSingle)
 
     return amountData
 
