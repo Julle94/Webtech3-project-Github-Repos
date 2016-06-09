@@ -12,6 +12,8 @@ basetype = "/zipball/master"
 outerPath = "C:\Project\Zip\\"
 commits = "/commits"
 parsedData = []
+amountData = []
+authentication = "?client_id=15c00265fc566965deff&client_secret=b78c4bc8b339953d1f9f2830d4a54b3119414dd8"
 
 
 
@@ -20,7 +22,7 @@ parsedData = []
 
 
 def downloadRepo(repoName):
-    url = baseurl + repoName + basetype
+    url = baseurl + repoName + basetype + authentication
     local_filename = repoName.split('/')[1]
     local_filename = local_filename.split('\n')[0]
     local_filename = local_filename +".zip"
@@ -41,25 +43,20 @@ def repos(request):
  
     if request.method == 'POST':
         filename = request.POST.get('file_input')
-        if easygui.ccbox("WARNING: The repositories will be downloaded and unzipped in the background and saved in the folden C:/Project/Zip and C:/Project/Unzip.." + "\n" + "If this is the first time you run this program, these directories will be created automatically.","Warning"):
-            createDirs()
-            data = []
-            with open(filename, 'r') as file:
-                data = file.readlines()
-            for repo in data:
-                try:
-                    repo = repo.split('\n')[0]
-                    zipName = downloadRepo(repo)
-                    # ctypes.windll.user32.MessageBoxA(0, zipName, 'test', 1)
-                    unzip(zipName)
-                    projectCommits(repo)
-                    
-                except:
-                    easygui.exceptionbox()
-            for repo in parsedData:
-                topFileData = getCommitFiles(repo["repo"], repo["sha"])
-                timesIncommit = listFiles(topFileData)
-                sortedList = sortItems(timesIncommit)
+        createDirs()
+        data = []
+        with open(filename, 'r') as file:
+            data = file.readlines()
+        for repo in data:
+            try:
+                repo = repo.split('\n')[0]
+                zipName = downloadRepo(repo)
+                # ctypes.windll.user32.MessageBoxA(0, zipName, 'test', 1)
+                unzip(zipName)
+                projectCommits(repo)
+                
+            except:        
+                easygui.exceptionbox()
 
     return render(request, 'app/profile.html', {'data': parsedData})
 
@@ -70,7 +67,7 @@ def repos(request):
 def projectCommits(repo):
     data = {}
     formattedData = []
-    url = baseurl + repo + commits
+    url = baseurl + repo + commits + authentication
     response = urllib2.urlopen(url)
     data = json.load(response)
     for commit in data:
@@ -90,6 +87,7 @@ def projectCommits(repo):
         message = commit["commit"]["message"]
         presenting["message"] = message
 
+
         parsedData.append(presenting)
 
 
@@ -101,7 +99,7 @@ def projectCommits(repo):
 
 def getCommitFiles(repo, shaKey):
     data = {}
-    url = baseurl + repo + commits + "/" + shaKey
+    url = baseurl + repo + commits + "/" + shaKey + authentication
     response = urllib2.urlopen(url)
     data = json.load(response)
     files = data["files"]
@@ -119,27 +117,37 @@ def getCommitFiles(repo, shaKey):
 
 
 def listFiles(fileData):
-    amountData = []
+
     for file in fileData:
-        amountDataSingle = {}
-        for amount in amountData:
+        amountDataSingle = {}      
+        if len(amountData) == 0:
+            amountDataSingle["repo"] = file["repo"]
+            amountDataSingle["filename"] = file["filename"]
+            amountDataSingle["amount"] = 1
+            amountData.append(amountDataSingle)
 
-            if file["filename"] not in amount["filename"]:
-                amountDataSingle["repo"] = file["repo"]
-                amountDataSingle["filename"] = file["filename"]
-                amountDataSingle["amount"] = 1
-                amountData.append(amountDataSingle)
-            else:
+        else:
 
-
-                result = filter(lambda lambdafile: lambdafile["filename"] == file["filename"] and lambdafile["repo"] == file["repo"], amountData)
-                if result != "":
-                    result["amount"] += 1
-                else:
+            for index, amount in enumerate(amountData):           
+                if file["filename"] != amountData[index]["filename"]:
                     amountDataSingle["repo"] = file["repo"]
                     amountDataSingle["filename"] = file["filename"]
                     amountDataSingle["amount"] = 1
                     amountData.append(amountDataSingle)
+                    break
+                else:
+
+
+                    result = filter(lambda lambdafile: lambdafile["filename"] == file["filename"] and lambdafile["repo"] == file["repo"], amountData)
+                    if result != "":
+                        amountData[index]["amount"] +=1
+                        break
+                    else:
+                        amountDataSingle["repo"] = file["repo"]
+                        amountDataSingle["filename"] = file["filename"]
+                        amountDataSingle["amount"] = 1
+                        amountData.append(amountDataSingle)
+                        break
 
     return amountData
 
@@ -148,6 +156,13 @@ def sortItems(timesArray):
     sortedList = sorted(timesArray, key=lambda k: k["amount"])
     return sortedList
 
+
+def getTenWithNumber(sortedList):
+    sortedList = sortedList[:10]
+
+    for index, data in enumerate(sortedList):
+        data["place"] = index + 1
+    return sortedList
 
 
 def createDirs():
@@ -163,6 +178,21 @@ def createDirs():
 
     if not os.path.exists(unzipDir):
         os.makedirs(unzipDir)
+
+
+
+def topten(request):
+    if len(parsedData) == 0:
+        return render(request, 'app/nodata.html')
+
+    for commit in parsedData:
+        topFileData = getCommitFiles(commit["repo"], commit["sha"])
+        timesIncommit = listFiles(topFileData)
+        sortedList = sortItems(timesIncommit)
+        topTenList = getTenWithNumber(sortedList)
+    #     easygui.codebox("Msg", "Title", timesIncommit)
+
+    return render(request, 'app/commits.html', {'data': topTenList})
 
 
 

@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="/static/bootstrap/dist/css/bootstrap-theme.min.css">
 </head>
 <body>
-<h1 class="text-center"> Github Top 10 git commits</h1>
+<h1 class="text-center"> Github Top 10 file commits</h1>
+<a class="btn btn-positive" href="{% url 'app.views.repos' %}">Repository Overview</a>
 	<div class="col-lg-12">
       <style>
         .form-signin {
@@ -22,17 +23,19 @@
               <thead>
               <tr>
                 <th class="header"> Number <i class="icon-sort"></i></th>
+                <th class="header"> Repository <i class="icon-sort"></i></th>
                 <th class="header"> File <i class="icon-sort"></i></th>
                 <th class="header"> Amount of commits<i class="icon-sort"></i></th>
               </tr>
           </thead>
           <tbody>
           
-          {% for key in data %}
+          {% for val in data %}
               <tr>
-                  <td>{{ key.repo }}</td>
-                  <td>{{ key.name }}</td>
-                  <td>{{ key.date }}</td>
+                  <td>{{ val.place }}
+                  <td>{{ val.repo }}</td>
+                  <td>{{ val.filename }}</td>
+                  <td>{{ val.amount }}</td>
               </tr>
           {% endfor %}
           
