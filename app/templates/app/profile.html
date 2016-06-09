@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="/static/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="/static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/javascript/sweetalert.min.js"></script>
+
+    
+
+    <link rel="stylesheet" href="/static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/css/sweetalert.css">
+
+</head>
+<body>
+
+<h1 class="text-center"> Github Repository Data </h1>
+	<div class="col-lg-12">
+      <style>
+        .form-signin {
+          max-width: 550px;
+          padding: 15px;
+          margin: 0 auto;
+        }    
+      </style>
+
+
+      <div class="container text-center">
+          <form class="form-signin" id="login_form" method="post" action="/app/">
+            {% csrf_token %}
+
+            <br>
+            <input type="file" name="file_input" class="form-control" placeholder="Insert file here" value="" accept="file_extension" required autofocus>
+            <br>
+            <button class="btn btn-lg btn-primary btn-block" onclick="myFunction()" type="submit">Get Data</button>
+          </form>
+      </div>
+      <a class="btn btn-positive" href="{% url 'app.views.topten' %}">Commit Overview</a>
+      <div class="table-responsive">
+          <table class="table table-bordered table-hover table-striped tablesorter">
+              <thead>
+              <tr>
+                <th class="header"> Username <i class="icon-sort"></i></th>
+                <th class="header"> Committer Username <i class="icon-sort"></i></th>
+                <th class="header"> Date<i class="icon-sort"></i></th>
+                <th class="header"> Email <i class="icon-sort"></i></th>
+                <th class="header"> Message <i class="icon-sort"></i></th>
+              </tr>
+          </thead>
+          <tbody>
+          
+          {% for key in data %}
+              <tr>
+                  <td>{{ key.repo }}</td>
+                  <td>{{ key.name }}</td>
+                  <td>{{ key.date }}</td>
+                  <td>{{ key.email }}</td>
+                  <td>{{ key.message }}</td>
+              </tr>
+          {% endfor %}
+          
+          </tbody>
+          </table>
+      </div>
+    </div>
+</body>
+</html>
+
+  <script>
+      function myFunction() {
+        swal({   title: "Warning!",   text: "The repositories will be downloaded and unzipped in the background and saved in the folder C:/Project/Zip and C:/Project/Unzip.." + "\n" + "If this is the first time you run this program, these directories will be created automatically.",   type: "info",   confirmButtonText: "Cool" });
+      }
+    </script>
