@@ -134,16 +134,12 @@ def listFiles(fileData):
                     amountDataSingle["filename"] = file["filename"]
                     amountDataSingle["amount"] = 1
                     amountData.append(amountDataSingle)
-                    easygui.msgbox(amountData)
-                    easygui.msgbox("i was here aswell")
                     break
                 else:
-
-
                     result = filter(lambda lambdafile: lambdafile["filename"] == file["filename"] and lambdafile["repo"] == file["repo"], amountData)
+                    easygui.msgbox(result)
                     if result != None:
                         amountData[index]["amount"] +=1
-                        easygui.msgbox("i was here")
                         break
                     else:
                         amountDataSingle["repo"] = file["repo"]
