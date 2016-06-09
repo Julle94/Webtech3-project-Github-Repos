@@ -164,7 +164,7 @@ def createDirs():
         os.makedirs(zipDir)
 
     if not os.path.exists(unzipDir):
-    os.makedirs(unzipDir)
+        os.makedirs(unzipDir)
 
 
 
